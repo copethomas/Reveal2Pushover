@@ -46,7 +46,18 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal server error", 500)
 		return
 	}
-	err = SendPushNotification(fmt.Sprintf("New Website Visitor! - %s ", "test"))
+	//Quick Validation of the request:
+	if clientEvent.TenantId != conf.TenantId {
+		http.Error(w, "access denied", 403)
+		Error.Printf("Access Denied! - Invalid TenantID '%s'", clientEvent.TenantId)
+		return
+	}
+	Info.Printf("Dispatching Notification...")
+	notificationText := fmt.Sprintf("'%s' with a score of '%d' ocurred on %s  | Sensor Details = ", clientEvent.Description, clientEvent.Score, clientEvent.AgentHostname)
+	for _, s := range clientEvent.Sensors {
+		notificationText += s.Description + " & "
+	}
+	err = SendPushNotification(notificationText)
 	if err != nil {
 		Error.Printf("failed to send push notification, err = %s", err.Error())
 		http.Error(w, "internal server error", 500)
