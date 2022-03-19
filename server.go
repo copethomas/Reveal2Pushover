@@ -52,7 +52,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		Error.Printf("Access Denied! - Invalid TenantID '%s'", clientEvent.TenantId)
 		return
 	}
-	notificationText := fmt.Sprintf("Alarm (%d) - '%s' ocurred on %s", clientEvent.Score, clientEvent.Description, clientEvent.AgentHostname)
+	notificationText := fmt.Sprintf("Alarm (%d) [%s] - '%s'", clientEvent.Score, clientEvent.AgentHostname, clientEvent.Description)
 	err = SendPushNotification(notificationText)
 	if err != nil {
 		Error.Printf("failed to send push notification, err = %s", err.Error())
@@ -60,7 +60,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, s := range clientEvent.Sensors {
-		notificationText := fmt.Sprintf("Sensor - '%s'", s.Description)
+		notificationText := fmt.Sprintf("Sensor [%s] - '%s'", clientEvent.AgentHostname, s.Description)
 		err = SendPushNotification(notificationText)
 		if err != nil {
 			Error.Printf("failed to send push notification, err = %s", err.Error())
